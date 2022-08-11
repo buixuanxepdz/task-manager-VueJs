@@ -4,7 +4,7 @@
                     <draggable
                         class="list-group"
                         tag="ul"
-                        v-model="list1"
+                        :list="list1"
                         v-bind="dragOptions"
                         @start="drag = true"
                         @end="drag = false"
@@ -23,7 +23,7 @@
                             @click="element.fixed = !element.fixed"
                             aria-hidden="true"
                             ></i>
-                            <h4>{{ element.title }}</h4>
+                            <input class="title" type="text" :value="element.title">
                             <draggable
                                 class="list-group"
                                 tag="ul"
@@ -37,7 +37,7 @@
                                 <li
                                     class="list-group-item-child"
                                     v-for="element2 in element.cards"
-                                    :key="element2.id"
+                                    :key="element2.id" @click="drawer = true"
                                 >
                                     <i
                                     :class="
@@ -50,18 +50,24 @@
                                 </li>
                                 <!-- </transition-group> -->
                             </draggable>
-                            <div class="addTag">
+                            <div class="addTag" v-if="element.status" @click="element.status  =! element.status">
                                 <i class="el-icon-plus"></i>Thêm thẻ
                             </div>
-                            <!-- <div class="addTag addTagActive">
-                                <textarea name="" id="" rows="3" autofocus v-model="element.cards.title" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
+                            <div class="addTag addTagActive" v-else>
+                                <textarea name="" id="" @keyup.enter="handleAddTag(element.id)" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
                                 <div class="addHandle"> 
-                                    <button>Thêm thẻ</button><i class="el-icon-close" @click="checkTag = true"></i>
+                                    <button @click="handleAddTag(element.id)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
                                 </div>
-                            </div> -->
+                            </div>
                         </li>
                         </transition-group>
                     </draggable>
+                    <el-drawer
+                    title="I am the title"
+                    :visible.sync="drawer"
+                    :with-header="false">
+                    <span>Hi there!</span>
+                    </el-drawer>
                     <div class="addList" v-if="checkList == true" @click="checkList = false">
                         <i class="el-icon-plus"></i>Thêm danh sách
                     </div>
@@ -72,11 +78,13 @@
                         </div>
                     </div>
                 </div>
+
     </div>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
+import { mapMutations, mapState } from 'vuex'
     export default {
         name:'DirectoryComponent',
         display: "Transitions",
@@ -85,163 +93,27 @@ import draggable from 'vuedraggable'
         },
         data(){
             return {
+                drawer: false,
                 checkList:true,
-                list1: [
-                    {
-                    "id": 1,
-                    "title": "group 1",
-                    "user_id": 110,
-                    "index": 1,
-                    "created_at": "2022-08-03T11:14:27.000000Z",
-                    "updated_at": "2022-08-03T11:14:27.000000Z",
-                    "cards": [
-                        {
-                        "id": 822,
-                        "title": "task 1",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 649,
-                        "index": 0,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T11:14:41.000000Z",
-                        "updated_at": "2022-08-03T11:14:43.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 823,
-                        "title": "task 2",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 649,
-                        "index": 1,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:35.000000Z",
-                        "updated_at": "2022-08-03T12:22:35.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 824,
-                        "title": "task 3",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 649,
-                        "index": 2,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:37.000000Z",
-                        "updated_at": "2022-08-03T12:22:37.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 825,
-                        "title": "task 4",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 649,
-                        "index": 3,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:39.000000Z",
-                        "updated_at": "2022-08-03T12:22:39.000000Z",
-                        "labels": []
-                        }
-                    ]
-                    },
-                    {
-                    "id": 2,
-                    "title": "group 2",
-                    "user_id": 110,
-                    "index": 1,
-                    "created_at": "2022-08-03T11:14:29.000000Z",
-                    "updated_at": "2022-08-03T11:14:29.000000Z",
-                    "cards": [
-                        {
-                        "id": 821,
-                        "title": "task 5",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 650,
-                        "index": 0,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T11:14:39.000000Z",
-                        "updated_at": "2022-08-03T11:14:43.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 826,
-                        "title": "task 6",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 650,
-                        "index": 1,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:43.000000Z",
-                        "updated_at": "2022-08-03T12:22:43.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 827,
-                        "title": "task 7",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 650,
-                        "index": 2,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:45.000000Z",
-                        "updated_at": "2022-08-03T12:22:45.000000Z",
-                        "labels": []
-                        },
-                        {
-                        "id": 828,
-                        "title": "task 8",
-                        "description": null,
-                        "status": null,
-                        "directory_id": 650,
-                        "index": 3,
-                        "deadline": null,
-                        "user_id": 110,
-                        "created_at": "2022-08-03T12:22:47.000000Z",
-                        "updated_at": "2022-08-03T12:22:47.000000Z",
-                        "labels": []
-                        }
-                    ]
-                    }
-                ],
+                drag:false,
                 title:'',
-                drag:false
+                tag:''
             }
         },
         methods: {
+            ...mapMutations(['addList','addTag']),
             handleAddList(){
-                if(this.title == ''){
-                    return 
-                }else{
-                    this.list1.push(
-                        {
-                            "id": Math.random(),
-                            "title": this.title,
-                            "user_id": 110,
-                            "index": 1,
-                            "created_at": "2022-08-03T11:14:27.000000Z",
-                            "updated_at": "2022-08-03T11:14:27.000000Z",
-                            "cards":[]
-                        }
-                    )
-                    this.title = ''
-                }
+               this.addList(this.title)
+               this.title=''
             },
-            handleAddTag(){
-               this.list1.map((tag) => {
-                if(tag.cards.title == null){
-                    return
+            handleAddTag(id){
+                let data = {
+                    id:id,
+                    tag:this.tag
                 }
-               })
-            },
+                this.addTag(data)
+                this.tag = ''
+            }
             
         },
         computed: {
@@ -253,7 +125,10 @@ import draggable from 'vuedraggable'
                     ghostClass: "ghost",
                   
                 };
-            }
+            },
+            ...mapState([
+                'list1',
+            ])
         },
         mounted(){
             
@@ -278,7 +153,7 @@ import draggable from 'vuedraggable'
         margin: 30px 0 0 20px;
         line-height: 40px;
         font-weight: bold;
-        transition: 0.4s;
+        font-size: 18px;
         cursor: pointer;
         
         i{
@@ -297,12 +172,14 @@ import draggable from 'vuedraggable'
         margin: 30px 0 0 20px;
         line-height: 40px;
         font-weight: bold;
-        transition: 0.4s;
+        transition: 0.1s;
+        padding: 9px 0;
         cursor: pointer;
          .addHandle{
             width: max-content;
             align-items: center;
             display: flex;
+            margin-left: 6px;
             justify-content: space-between;
             button{
                 width: max-content;
@@ -315,7 +192,7 @@ import draggable from 'vuedraggable'
                 float: left;
                 margin-left: 6px;
                 border-radius: 5px;
-                margin-top: 5px;
+                margin-top: 9px;
             }
             button:hover{
                 cursor: pointer;
@@ -331,11 +208,14 @@ import draggable from 'vuedraggable'
             }
         }
          input{
-                width: 95%;
+                width: 90%;
                 margin: 0 auto;
                 height: 28px;
                 outline: none;
                 border: none;
+                padding-left: 3px;
+                font-size: 18px;
+                border: 2px solid #3689c3;
             }
     }
     .list-group{
@@ -351,8 +231,28 @@ import draggable from 'vuedraggable'
            border-radius: 5px;
            padding: 10px 0;
            height: max-content;
-           h4{
-            margin-left: 20px;
+           .title{
+                height: 28px;
+                font-size: 18px;
+                font-weight: bold;
+                background-color: transparent;
+                outline: none;
+                border: none;
+                width: 90%;
+                margin: 0 auto;
+                display: block;
+                padding-left: 5px;
+                margin-top: 5px;
+                border-radius: 3px;
+                border: 2px solid transparent;
+           }
+           .title:hover{
+                cursor: pointer;
+           }
+           .title:focus{
+                border: 2px solid #3689c3;
+                background-color: white;
+                cursor:text;
            }
             .list-group-item-child{
                 background-color: white;
