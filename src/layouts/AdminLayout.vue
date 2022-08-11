@@ -1,6 +1,6 @@
 <template>
     <div>
-       <el-container>
+       <el-container style="height:100vh">
             <el-header style=" font-size: 12px">
                 <div class="left-head">
                     <router-link to="/"><h2>Trang chủ</h2></router-link>
@@ -31,9 +31,11 @@
         name:'AdminLayout',
         data(){
             return {
-                url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
+                url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
             };
-        }
+        },
+        mounted() {
+        },
     }
 </script>
 
@@ -42,7 +44,7 @@
         text-decoration: none;
     }
      .el-header {
-            background-color: #303133;
+            background-image: linear-gradient(45deg, #19178f, #86bbb645);
             color: #333;
             line-height: 60px;
             display: flex;
@@ -97,4 +99,9 @@
             }
            
         }
+    .el-main{
+        background-image: url('../assets/images/bg-home.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 </style>

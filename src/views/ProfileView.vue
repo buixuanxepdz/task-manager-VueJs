@@ -148,16 +148,22 @@
 
 <style lang="scss" scoped>
     .container{
-        background-image: url(../assets/images/bg2png.png);
+        background-image: url(../assets/images/bg-profile.jpg);
         background-size: cover;
         background-repeat: no-repeat;
         width: 100%;
-        height: 100vh;
+        height: 100%;
         .content{
-            width: 700px;
+            width: 800px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
+            padding: 30px;
+            background-color: white;
+            border: 1px solid gray;
+            border-radius: 10px;
+            box-shadow: 0px 2px 9px 1px;
+            margin-top: 100px;
             .image{
                 width: 40%;
                 display: flex;
