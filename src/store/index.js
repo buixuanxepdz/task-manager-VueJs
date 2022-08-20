@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import auth from './modules/auth'
+import task from './modules/Task'
+import createPersistedState from "vuex-persistedstate";
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -156,7 +158,10 @@ const store = new Vuex.Store({
     addTag(state,data){
         state.list1.find((list,index) => {
           if(list.id == data.id){
-              state.list1[index].cards.push({
+            if(data.tag == ''){
+              return false
+            }else{
+               state.list1[index].cards.push({
                  "id": Math.random(),
                 "title": data.tag,
                 "description": null,
@@ -169,13 +174,26 @@ const store = new Vuex.Store({
                 "updated_at": "2022-08-03T11:14:43.000000Z",
                 "labels": []
               })
+            }
+             
           }
+        })
+    },
+    checkIndex(state,id){
+        state.list1.map((list,index) => {
+            if(list.id == id){
+              state.list1[index].status = false
+            }else{
+              state.list1[index].status = true
+            }
         })
     }
   },
   modules:{
-    auth
-  }
+    auth,
+    task
+  },
+  plugins: [createPersistedState({ paths: ['auth'] })]
 })
 
 export default store

@@ -1,95 +1,69 @@
 <template>
     <div>
-                <div class="content">
+        <div class="content">
+            <draggable
+                class="list-group"
+                tag="ul"
+                :list="list1"
+                v-bind="dragOptions"
+                @start="drag = true"
+                @end="drag = false"
+                group="1"
+            >
+                <transition-group class="box" type="transition" :name="!drag ? 'flip-list' : null">
+                <li
+                    class="list-group-item"
+                    v-for="element in list1"
+                    :key="element.id"
+                >
+                    <input class="title" type="text" :value="element.title">
                     <draggable
                         class="list-group"
                         tag="ul"
-                        :list="list1"
+                        v-model="element.cards"
                         v-bind="dragOptions"
                         @start="drag = true"
                         @end="drag = false"
-                        group="1"
+                        group="2"
                     >
-                        <transition-group class="box" type="transition" :name="!drag ? 'flip-list' : null">
-                        <li
-                            class="list-group-item"
-                            v-for="element in list1"
-                            :key="element.id"
-                        >
-                            <i
-                            :class="
-                                element.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
-                            "
-                            @click="element.fixed = !element.fixed"
-                            aria-hidden="true"
-                            ></i>
-                            <input class="title" type="text" :value="element.title">
-                            <draggable
-                                class="list-group"
-                                tag="ul"
-                                v-model="element.cards"
-                                v-bind="dragOptions"
-                                @start="drag = true"
-                                @end="drag = false"
-                                group="2"
-                            >
-                                <!-- <transition-group type="transition" :name="!drag ? 'flip-list' : null"> -->
-                                <li
-                                    class="list-group-item-child"
-                                    v-for="element2 in element.cards"
-                                    :key="element2.id" @click="drawer = true"
-                                >
-                                    <i
-                                    :class="
-                                        element2.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
-                                    "
-                                    @click="element2.fixed = !element2.fixed"
-                                    aria-hidden="true"
-                                    ></i>
-                                    {{ element2.title }}
-                                </li>
-                                <!-- </transition-group> -->
-                            </draggable>
-                            <div class="addTag" v-if="element.status" @click="element.status  =! element.status">
-                                <i class="el-icon-plus"></i>Thêm thẻ
-                            </div>
-                            <div class="addTag addTagActive" v-else>
-                                <textarea name="" id="" @keyup.enter="handleAddTag(element.id)" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
-                                <div class="addHandle"> 
-                                    <button @click="handleAddTag(element.id)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
-                                </div>
-                            </div>
-                        </li>
-                        </transition-group>
+                    <TaskComponent v-for="element2 in element.cards" :key="element2.id" :element2="element2" />
                     </draggable>
-                    <el-drawer
-                    title="I am the title"
-                    :visible.sync="drawer"
-                    :with-header="false">
-                    <span>Hi there!</span>
-                    </el-drawer>
-                    <div class="addList" v-if="checkList == true" @click="checkList = false">
-                        <i class="el-icon-plus"></i>Thêm danh sách
+                    <div class="addTag" v-if="element.status" @click="checkIndx(element.id)">
+                        <i class="el-icon-plus"></i>Thêm thẻ
                     </div>
-                    <div class="addListActive" v-else>
-                        <input type="text" @keyup.enter="handleAddList()" v-model="title" autofocus>
-                        <div class="addHandle">
-                            <button  @click="handleAddList()">Thêm danh sách</button><i class="el-icon-close" @click="checkList = true"></i>
+                    <div class="addTag addTagActive" v-else>
+                        <textarea name="" id="" @keyup.enter="handleAddTag(element.id)" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
+                        <div class="addHandle"> 
+                            <button @click="handleAddTag(element.id)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
                         </div>
                     </div>
+                </li>
+                </transition-group>
+            </draggable>
+            <div class="addList" v-if="checkList == true" @click="checkList = false">
+                <i class="el-icon-plus"></i>Thêm danh sách
+            </div>
+            <div id="abc" class="addListActive" v-else>
+                <input type="text" @keyup.enter="handleAddList()" v-model="title" autofocus>
+                <div class="addHandle">
+                    <button  @click="handleAddList()">Thêm danh sách</button><i class="el-icon-close" @click="checkList = true"></i>
                 </div>
-
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
+// import api from '../api/index'
 import { mapMutations, mapState } from 'vuex'
+import TaskComponent from './TaskComponent.vue'
     export default {
         name:'DirectoryComponent',
         display: "Transitions",
         components: {
             draggable,
+            TaskComponent
         },
         data(){
             return {
@@ -97,14 +71,17 @@ import { mapMutations, mapState } from 'vuex'
                 checkList:true,
                 drag:false,
                 title:'',
-                tag:''
+                tag:'',
             }
         },
         methods: {
-            ...mapMutations(['addList','addTag']),
+            ...mapMutations(['addList','addTag','checkIndex']),
             handleAddList(){
                this.addList(this.title)
                this.title=''
+               setTimeout(()=>{
+                    document.getElementById('abc').scrollIntoView()
+               },200)
             },
             handleAddTag(id){
                 let data = {
@@ -113,6 +90,9 @@ import { mapMutations, mapState } from 'vuex'
                 }
                 this.addTag(data)
                 this.tag = ''
+            },
+            checkIndx(id){
+                this.checkIndex(id)
             }
             
         },
@@ -131,7 +111,12 @@ import { mapMutations, mapState } from 'vuex'
             ])
         },
         mounted(){
-            
+        
+        //    api.getDirectory().then(res =>{
+        //         console.log(res)
+        //    }).catch(err => {
+        //          console.log(err)
+        //    })
         }
     }
 </script>
@@ -151,6 +136,7 @@ import { mapMutations, mapState } from 'vuex'
         background-color: #ebecf0;
         border-radius: 5px;
         margin: 30px 0 0 20px;
+        margin-right: 30px;
         line-height: 40px;
         font-weight: bold;
         font-size: 18px;
@@ -170,6 +156,7 @@ import { mapMutations, mapState } from 'vuex'
         background-color: #ebecf0;
         border-radius: 5px;
         margin: 30px 0 0 20px;
+        margin-right: 30px;
         line-height: 40px;
         font-weight: bold;
         transition: 0.1s;
@@ -254,16 +241,6 @@ import { mapMutations, mapState } from 'vuex'
                 background-color: white;
                 cursor:text;
            }
-            .list-group-item-child{
-                background-color: white;
-                list-style: none;
-                width: 90%;
-                margin: 0 auto;
-                padding: 10px;
-                margin-top: 10px;
-                margin-bottom: 10px;
-                border-radius: 5px;
-            }
              .addTag{
                 width: 90%;
                 margin: 0 auto;

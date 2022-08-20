@@ -5,12 +5,18 @@
                 <div class="content">
                     <div class="image">
                         <form>
-                            <div id="preview">
+                            <div v-if="avatar || url" class="preview"  title="Cập nhật avatar">
                                 <img v-if="url" :src="url" />
-                            </div>    
-                            <input id="inpt" type="file" @change="onFileChange" />
+                                <img :src="`http://vuecourse.zent.edu.vn/storage/${avatar}`" alt="" v-else>
+                                <i class="fa-solid fa-xmark" title="Hủy" @click="close"></i>
+                            </div>
+                            <div v-else class="preview" @click="changeImg" title="Cập nhật avatar">
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png"  />
+                                <input id="inpt" ref="file" type="file" @change="onFileChange" v-show="false" />
+                            </div>        
+                           
                             <el-row>
-                                <el-button type="danger" style="margin-top: 15px;">Lưu</el-button>
+                                <el-button type="danger" style="margin-top: 15px;" @click="updateAvatar">Lưu</el-button>
                             </el-row>
                         </form>
                     </div>
@@ -63,6 +69,8 @@
 </template>
 
 <script>
+import api from '@/api';
+
     export default {
         name:'ProfileView',
         data(){
@@ -91,8 +99,8 @@
                         key: 1,
                         value: ''
                         }],
-                    email: 'buixuanxep@gmail.com',
-                    name:'Bùi Xuân Xếp'
+                    email: '',
+                    name:''
                 },
                 changePass:{
                     pass:'',
@@ -106,7 +114,8 @@
                         { validator: validatePass2, trigger: 'blur' }
                     ],
                 },
-                url:'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+                url:'',
+                avatar:''
             };
         },
         methods:{
@@ -135,20 +144,36 @@
                     }
                 });
             },
+            updateAvatar(){
+
+            },
             onFileChange(e) {
                 const file = e.target.files[0];
                 this.url = URL.createObjectURL(file);
+            },
+            changeImg(){
+                this.$refs.file.click()
+            },
+            close(){
+                this.url = ''
             }
         },
         mounted(){
-           
+           api.getAuthUser().then(res => {
+                console.log(res.data.name)
+                this.dynamicValidateForm.name = res.data.name
+                this.dynamicValidateForm.email = res.data.email
+                this.avatar = res.data.avatar
+            }).catch(err => {
+                console.log(err)
+            })
         }
     }
 </script>
 
 <style lang="scss" scoped>
     .container{
-        background-image: url(../assets/images/bg-profile.jpg);
+        background-image: url(../assets/images/bg3.png);
         background-size: cover;
         background-repeat: no-repeat;
         width: 100%;
@@ -158,7 +183,7 @@
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
-            padding: 30px;
+            padding: 50px;
             background-color: white;
             border: 1px solid gray;
             border-radius: 10px;
@@ -167,24 +192,63 @@
             .image{
                 width: 40%;
                 display: flex;
-                justify-content: space-between;
+                justify-content: center;
                 flex-wrap: wrap;
-                #preview{
+                border: 1px solid #DCDFE6;
+                box-shadow: 0 2px 4px 0 rgb(0 0 0 / 12%), 0 0 6px 0 rgb(0 0 0 / 4%);
+                padding: 20px;
+                .preview{
                     width: 150px;
                     height: 150px;
                     margin: 0 auto;
-                    margin-bottom: 20px;
+                    margin-bottom: 10px;
+                    position: relative;
                     img{
                         width: 100%;
                         height: 100%;
                         border-radius: 50%;
+                        margin: 0 auto;
                         border: 5px solid rgb(17, 147, 240);
+                        
                     }
+                    i{
+                        position: absolute;
+                        top: 14px;
+                        right: 4px;
+                        font-size: 20px;
+                        color: white;
+                        padding: 3px 7px;
+                        background-color: red;
+                        border-radius: 50%;
+                        z-index: 12;
+                        display: none;
+                    }
+                }
+                .preview::before{
+                    content: "";
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                    width: 100%;
+                    height: 100%;
+                    background-color: #0000004f;
+                    z-index: 10;
+                    display: none;
+                    border-radius: 50%;
+                }
+                .preview:hover::before,.preview:hover i{
+                    display: block ;
+                    cursor: pointer;
                 }
                 #inpt{
                     width: 70%;
                     margin: 0 auto;
                 }
+            }
+            .profile{
+                width: 40%;
+                display: flex;
+                justify-content: center;
             }
         }
     }

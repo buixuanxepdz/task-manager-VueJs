@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -11,7 +12,7 @@ const routes = [
     children:
     [ 
       {
-        path:'/profile/:id',
+        path:'/profile',
         name:'profile',
         component: () => import('../views/ProfileView.vue')
       },
@@ -39,6 +40,19 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name != 'login' && !store.state.auth.isLogin) {
+    next({ name:['login','register'] })
+  } 
+  else if (to.name == 'login' && store.state.auth.isLogin) {
+    next({ name: 'home' })
+  } 
+  
+  else {
+    next()
+  }
 })
 
 export default router

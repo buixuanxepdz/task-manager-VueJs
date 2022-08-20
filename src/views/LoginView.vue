@@ -3,7 +3,7 @@
         <LoginLayout>
             <template #form>
                 <div>
-                    <header>Task Manager</header>
+                    <header style="width:100%;margin-bottom: 30px;"><img width="100%" src="../assets/images/login.png" alt=""></header>
                     <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" class="demo-dynamic">
                         <el-form-item
                             prop="email"
@@ -14,10 +14,11 @@
                         >
                             <el-input v-model="dynamicValidateForm.email" placeholder="Email"></el-input>
                         </el-form-item>
-                        <el-form-item prop="pass"  :rules="[
+                        <el-form-item prop="password"  :rules="[
                             { required: true, message: 'Vui lòng nhập mật khẩu', trigger: 'blur' },
+                            { min: 6, message: 'Mật khẩu ít nhất 6 ký tự', trigger: 'blur' }
                             ]">
-                            <el-input type="password" v-model="dynamicValidateForm.pass" autocomplete="off"  placeholder="Mật khẩu"></el-input>
+                            <el-input type="password" v-model="dynamicValidateForm.password" autocomplete="off"  placeholder="Mật khẩu"></el-input>
                         </el-form-item>
                         <el-form-item class="button">
                             <div class="inner">
@@ -26,7 +27,7 @@
                         </el-form-item>
                     </el-form>
                     <div class="signup">
-                        Bạn chưa có tài khoản ? <router-link to="register">Đăng kí ngay</router-link>
+                        Bạn chưa có tài khoản ? <router-link :to="{name:'register'}">Đăng kí ngay</router-link>
                     </div>
                 </div>
             </template>
@@ -35,7 +36,9 @@
 </template>
 
 <script>
+import api from '@/api';
 import LoginLayout from '@/layouts/LoginLayout.vue';
+import { mapMutations } from 'vuex';
     export default {
     components: { LoginLayout },
      data() {
@@ -46,16 +49,28 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
                         value: ''
                         }],
                     email: '',
-                    pass:''
+                    password:''
                 }
             };
             
         },
         methods: {
+            ...mapMutations('auth', ['updateAccessToken','updateStatusLogin']),
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$router.push({name:'home'})
+                        api.login(this.dynamicValidateForm).then(res => {
+                            console.log(res.data)
+                            this.updateAccessToken(res.data.access_token);
+                            this.updateStatusLogin(true);
+                            this.$router.push({name: "home"})
+                        }).catch(err => {
+                            console.log(err)
+                            this.$message({
+                            message: 'Sai thông tin đăng nhập',
+                            type: 'error'
+                        });
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;

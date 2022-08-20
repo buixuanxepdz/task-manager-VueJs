@@ -17,8 +17,8 @@
                         >
                             <el-input v-model="dynamicValidateForm.email" placeholder="Email"></el-input>
                         </el-form-item>
-                        <el-form-item prop="pass">
-                            <el-input type="password" v-model="dynamicValidateForm.pass" autocomplete="off"  placeholder="Mật khẩu"></el-input>
+                        <el-form-item prop="password">
+                            <el-input type="password" v-model="dynamicValidateForm.password" autocomplete="off"  placeholder="Mật khẩu"></el-input>
                         </el-form-item>
                         <el-form-item prop="checkPass">
                             <el-input type="password" v-model="dynamicValidateForm.checkPass" autocomplete="off"  placeholder="Nhập lại mật khẩu"></el-input>
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import api from '@/api';
 import LoginLayout from '@/layouts/LoginLayout.vue';
     export default {
     components: { LoginLayout },
@@ -56,7 +57,7 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
             var validatePass2 = (rule, value, callback) => {
                 if (value === '') {
                 callback(new Error('Vui lòng nhập lại mật khẩu'));
-                } else if (value !== this.dynamicValidateForm.pass) {
+                } else if (value !== this.dynamicValidateForm.password) {
                 callback(new Error('Mật khẩu nhập lại chưa khớp'));
                 } else {
                 callback();
@@ -70,7 +71,7 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
                         }],
                     name:'',
                     email: '',
-                    pass:'',
+                    password:'',
                     checkPass:''
                 },
                  rules: {
@@ -78,13 +79,16 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
                         { required: true, message: 'Vui lòng nhập họ tên', trigger: 'blur' },
                         { min: 3, max: 15, message: 'Họ tên phải ít nhất 3 kí tự và tối đa 15', trigger: 'blur' }
                     ],
-                    pass: [
-                        { validator: validatePass, trigger: 'blur' }
+                    password: [
+                        { validator: validatePass, trigger: 'blur' },
+                        { min: 6, message: 'Mật khẩu ít nhất 6 kí tự', trigger: 'blur' }
                     ],
                     checkPass: [
-                        { validator: validatePass2, trigger: 'blur' }
+                        { validator: validatePass2, trigger: 'blur' },
+                        { min: 6, message: 'Mật khẩu ít nhất 6 kí tự', trigger: 'blur' }
                     ],
-                }
+                },
+                error:{}
             };
             
         },
@@ -92,14 +96,26 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                       this.$message({
-                        message: 'Đăng kí thành công',
-                        type: 'success'
-                        });
-                        this.dynamicValidateForm.name = ''
-                        this.dynamicValidateForm.email = ''
-                        this.dynamicValidateForm.pass = ''
-                        this.dynamicValidateForm.checkPass = ''
+                        api.register(this.dynamicValidateForm).then(res => {
+                            console.log(res.data)
+                            this.$message({
+                                message: 'Đăng kí thành công',
+                                type: 'success'
+                            });
+                            this.dynamicValidateForm.name = ''
+                            this.dynamicValidateForm.email = ''
+                            this.dynamicValidateForm.password = ''
+                            this.dynamicValidateForm.checkPass = ''
+                        }).catch(err => {
+                            console.log(err)
+                            this.error = err.response.data.error
+                            if(this.error.email){
+                                this.$message({
+                                message: 'Email đã tồn tại',
+                                type: 'error'
+                            });
+                            }
+                        })
                     } else {
                         return false;
                     }

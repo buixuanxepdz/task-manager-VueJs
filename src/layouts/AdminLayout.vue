@@ -3,9 +3,10 @@
        <el-container style="height:100vh">
             <el-header style=" font-size: 12px">
                 <div class="left-head">
-                    <router-link to="/"><h2>Trang chủ</h2></router-link>
-                    <el-button type="primary" icon="el-icon-star-off"></el-button>
-                    <el-button type="primary">Quản lý công việc</el-button>
+                    <router-link to="/">
+                        <img src="../assets/images/logo.png" alt="" v-if="!image">
+                        <img :src="`http://vuecourse.zent.edu.vn/storage/${image}`" alt="" v-else>
+                    </router-link>
                 </div>
                 <div class="right-head">
                     <el-dropdown>
@@ -13,8 +14,12 @@
                             <el-avatar :src="url"></el-avatar>
                         </span>
                         <el-dropdown-menu slot="dropdown">
-                            <router-link to="/profile/1"><el-dropdown-item><i class="el-icon-s-tools"></i>Thông tin tài khoản</el-dropdown-item></router-link>
-                            <router-link to="/login"><el-dropdown-item> <i class="el-icon-s-unfold"></i> Đăng xuất</el-dropdown-item></router-link>
+                            <router-link to="/profile"><el-dropdown-item><i class="el-icon-s-tools"></i>Thông tin tài khoản</el-dropdown-item></router-link>
+                            <!-- <router-link to="/login"> -->
+                                <div @click="clickLogout()">
+                                    <el-dropdown-item > <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</el-dropdown-item>
+                                </div>
+                            <!-- </router-link> -->
                         </el-dropdown-menu>
                     </el-dropdown>
                 </div>
@@ -27,14 +32,40 @@
 </template>
 
 <script>
+import api from '@/api';
+import { mapMutations } from 'vuex';
+
     export default {
         name:'AdminLayout',
         data(){
             return {
                 url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+                image:''
             };
         },
+        methods: {
+            ...mapMutations('auth', ['updateAccessToken','updateStatusLogin']),
+            clickLogout(){
+                // alert('ok')
+                 api.logout().then(res => {
+                    console.log(res)
+                    this.updateAccessToken('')
+                    this.updateStatusLogin(false);
+                    this.$router.push({name: "login"})
+
+                }).catch(err => {
+                    console.log(err)
+                })
+            },
+
+        },
         mounted() {
+            api.getAuthUser().then(res => {
+                console.log(res.data.name)
+                this.image = res.data.avatar
+            }).catch(err => {
+                console.log(err)
+            })
         },
     }
 </script>
@@ -58,9 +89,10 @@
                 justify-content: space-between;
                 align-items: center;
                 font-weight: bold;
-                h2{
-                    margin-right: 10px;
-                    color: white;
+                img{
+                    width: 120px;
+                    display: flex;
+                    align-items: center;
                 }
             }
             .right-head{
