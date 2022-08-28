@@ -17,6 +17,9 @@ export default {
      
     }
   },
+  mounted() {
+    document.title = 'Trang chủ'
+  },
 }
 </script>
 <style lang="scss" scoped>

@@ -42,16 +42,18 @@ export default {
             url: '/directories'
         })
     },
-    addDirectory(){
+    addDirectory(data){
         return apiAxios({
             method: 'post',
-            url: '/directories'
+            url: '/directories',
+            data
         })
     },
-    editDirectory(id){
+    editDirectory(data){
         return apiAxios({
-            method: 'post',
-            url: `/directories/${id}`
+            method: 'put',
+            url: `/directories/${data.get('id')}`,
+            data
         })
     },
     deleteDirectory(id){ 
@@ -60,22 +62,25 @@ export default {
             url: `/directories/${id}`
         })
     },
-    indexDirectory(id){ 
+    indexDirectory(data){ 
         return apiAxios({
             method: 'put',
-            url: `/directories/${id}/index`
+            url: `/directories/${data.id}/index`,
+            data
         })
     },
-    addTag(){ 
+    addTag(data){ 
         return apiAxios({
             method: 'post',
-            url: `/cards`
+            url: `/cards`,
+            data
         })
     },
-    editTag(id){ 
+    editTag(data){ 
         return apiAxios({
             method: 'put',
-            url: `/cards/${id}`
+            url: `/cards/${data.id}`,
+            data
         })
     },
     deleteTag(id){ 
@@ -84,58 +89,66 @@ export default {
             url: `/cards/${id}`
         })
     },
-    changeTag(id){ 
+    changeTag(data){ 
         return apiAxios({
             method: 'put',
-            url: `/cards/${id}/directory`
+            url: `/cards/${data.id}/directory`,
+            data
         })
     },
-    indexTag(id){ 
+    indexTag(data){ 
         return apiAxios({
             method: 'put',
-            url: `/cards/${id}/index`
+            url: `/cards/${data.id}/index`,
+            data
         })
     },
-    getTag(id){ 
+    getTag(data){ 
         return apiAxios({
             method: 'get',
-            url: `/cards/${id}`
+            url: `/cards/${data.id}`,
         })
     },
-    uploadFileInTag(id){ 
+    uploadFileInTag(data){ 
         return apiAxios({
             method: 'post',
-            url: `/cards/${id}/upload-file`
+            url: `/cards/${data.get('id')}/upload-file`,
+            data
         })
     },
-    changeStatusTag(id){ 
+    changeStatusTag(id,data){ 
         return apiAxios({
             method: 'put',
-            url: `/cards/${id}/change-status`
+            url: `/cards/${id}/change-status`,
+            data
         })
     },
-    changeDeadlineTag(id){ 
+    changeDeadlineTag(data,id){ 
         return apiAxios({
             method: 'put',
-            url: `/cards/${id}/change-status-deadline`
+            url: `/cards/${id}/change-status-deadline`,
+            data
         })
     },
-    attachLabelTag(id){ 
+    attachLabelTag(data){ 
         return apiAxios({
             method: 'post',
-            url: `/cards/${id}/attach-labels`
+            url: `/cards/${data.get('id')}/attach-labels`,
+            data
         })
     },
-    deleteLabelTag(id){
+    deleteLabelTag(data){
         return apiAxios({
             method: 'delete',
-            url: `/cards/${id}/detach-labels`
+            url: `/cards/${data.get('id')}/detach-labels`,
+            data
         })
     },
-    addLabelTag(id){
+    addLabelTag(data){
         return apiAxios({
-            method: 'delete',
-            url: `/cards/${id}/label`
+            method: 'post',
+            url: `/cards/${data.id}/label`,
+            data
         })
     },
     getAuthUser () {
@@ -170,40 +183,44 @@ export default {
         url: '/labels',
         })
     },
-    updateLabel(id){
+    updateLabel(data){
         return apiAxios({
-        method: 'get',
-        url: `/labels/${id}`,
+            method: 'put',
+            url: `/labels/${data.get('id')}`,
+            data
         })
     },
-    deleteLabel(id){
+    deleteLabel(data){
         return apiAxios({
         method: 'delete',
-        url: `/labels/${id}`,
+        url: `/labels/${data.id}`,
         })
     },
-    updateNameFile(id){
+    updateNameFile(data){
         return apiAxios({
         method: 'put',
-        url: `/files/${id}`,
+        url: `/files/${data.get('id')}`,
+        data
         })
     },
     deleteFile(id){
         return apiAxios({
-        method: 'delete',
-        url: `/files/${id}`,
+            method: 'delete',
+            url: `/files/${id}`,
         })
     },
-    getCheckList(){
+    addCheckList(data){
         return apiAxios({
-        method: 'get',
+        method: 'post',
         url: `/check-lists`,
+        data
         })
     },
-    updateCheckList(id){
+    updateCheckList(data){
         return apiAxios({
         method: 'put',
-        url: `/check-lists/${id}`,
+        url: `/check-lists/${data.get('id')}`,
+        data
         })
     },
     deleteCheckList(id){
@@ -212,16 +229,18 @@ export default {
         url: `/check-lists/${id}`,
         })
     },
-    addCheckListChild(){
+    addCheckListChild(data){
         return apiAxios({
         method: 'post',
         url: `/check-list-childs`,
+        data
         })
     },
-    updateCheckListChild(id){
+    updateCheckListChild(data){
         return apiAxios({
         method: 'put',
-        url: `/check-list-childs/${id}`,
+        url: `/check-list-childs/${data.get('id')}`,
+        data
         })
     },
     deleteCheckListChild(id){
@@ -230,22 +249,25 @@ export default {
         url: `/check-list-childs/${id}`,
         })
     },
-    updateStatusCheckListChild(id){
+    updateStatusCheckListChild(id,data){
         return apiAxios({
         method: 'put',
         url: `/check-list-childs/${id}/change-status`,
+        data
         })
     },
-    updateProfile(){
+    updateProfile(data){
         return apiAxios({
-        method: 'post',
-        url: `/users`,
+            method: 'post',
+            url: `/users`,
+            data
         })
     },
-    updatePassword(){
+    updatePassword(data){
         return apiAxios({
-        method: 'put',
-        url: `/users/password`,
+            method: 'put',
+            url: `/users/password`,
+            data
         })
     },
 }

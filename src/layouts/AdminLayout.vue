@@ -4,14 +4,14 @@
             <el-header style=" font-size: 12px">
                 <div class="left-head">
                     <router-link to="/">
-                        <img src="../assets/images/logo.png" alt="" v-if="!image">
-                        <img :src="`http://vuecourse.zent.edu.vn/storage/${image}`" alt="" v-else>
+                        <img src="../assets/images/logo.png" alt="">
                     </router-link>
                 </div>
                 <div class="right-head">
                     <el-dropdown>
                         <span class="el-dropdown-link">
-                            <el-avatar :src="url"></el-avatar>
+                            <el-avatar :src="`http://vuecourse.zent.edu.vn/storage/users/${avatar}`" v-if="avatar"></el-avatar>
+                            <el-avatar :src="url" v-else></el-avatar>
                         </span>
                         <el-dropdown-menu slot="dropdown">
                             <router-link to="/profile"><el-dropdown-item><i class="el-icon-s-tools"></i>Thông tin tài khoản</el-dropdown-item></router-link>
@@ -33,18 +33,19 @@
 
 <script>
 import api from '@/api';
-import { mapMutations } from 'vuex';
+import { mapMutations, mapState } from 'vuex';
 
     export default {
         name:'AdminLayout',
         data(){
             return {
                 url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-                image:''
+                // image:this.avatar
             };
         },
         methods: {
             ...mapMutations('auth', ['updateAccessToken','updateStatusLogin']),
+            ...mapMutations('user', ['handleAvatar']),
             clickLogout(){
                 // alert('ok')
                  api.logout().then(res => {
@@ -60,13 +61,15 @@ import { mapMutations } from 'vuex';
 
         },
         mounted() {
-            api.getAuthUser().then(res => {
-                console.log(res.data.name)
-                this.image = res.data.avatar
-            }).catch(err => {
-                console.log(err)
-            })
+             api.getAuthUser().then(res => {
+                    this.handleAvatar(res.data.avatar)
+                }).catch(err => {
+                    console.log(err)
+                })
         },
+        computed:{
+            ...mapState('user', ['avatar']),
+        }
     }
 </script>
 

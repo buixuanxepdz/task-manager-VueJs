@@ -4,19 +4,36 @@
             <draggable
                 class="list-group"
                 tag="ul"
-                :list="list1"
+                :list="directories"
                 v-bind="dragOptions"
                 @start="drag = true"
                 @end="drag = false"
                 group="1"
+                :move="checkMove"
             >
                 <transition-group class="box" type="transition" :name="!drag ? 'flip-list' : null">
                 <li
                     class="list-group-item"
-                    v-for="element in list1"
+                    v-for="element in directories"
                     :key="element.id"
+                    :id="element.id"
                 >
-                    <input class="title" type="text" :value="element.title">
+                    <div class="title">
+                        <!-- <h3 @click="changeTitle()">Change</h3> -->
+                        <input type="text" v-model="element.title" @blur="updateDirectoty(element)">
+                        <el-dropdown>
+                            <span class="el-dropdown-link">
+                                <i class="el-icon-more"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown" style="padding: 0px 5px;;">
+                                <div @click="removeDirectory(element.id)">
+                                    <el-dropdown-item>
+                                        <i class="el-icon-delete" style="text-align: center;margin: 0;color: red;font-weight: bold;"></i>
+                                    </el-dropdown-item>
+                                </div>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
                     <draggable
                         class="list-group"
                         tag="ul"
@@ -25,6 +42,7 @@
                         @start="drag = true"
                         @end="drag = false"
                         group="2"
+                        :move="moveTag"
                     >
                     <TaskComponent v-for="element2 in element.cards" :key="element2.id" :element2="element2" />
                     </draggable>
@@ -32,9 +50,9 @@
                         <i class="el-icon-plus"></i>Thêm thẻ
                     </div>
                     <div class="addTag addTagActive" v-else>
-                        <textarea name="" id="" @keyup.enter="handleAddTag(element.id)" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
+                        <textarea name="" id="" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
                         <div class="addHandle"> 
-                            <button @click="handleAddTag(element.id)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
+                            <button @click="handleAddTag(element)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
                         </div>
                     </div>
                 </li>
@@ -44,7 +62,7 @@
                 <i class="el-icon-plus"></i>Thêm danh sách
             </div>
             <div id="abc" class="addListActive" v-else>
-                <input type="text" @keyup.enter="handleAddList()" v-model="title" autofocus>
+                <input type="text" @keyup.enter="handleAddList()" v-model="list.title" autofocus>
                 <div class="addHandle">
                     <button  @click="handleAddList()">Thêm danh sách</button><i class="el-icon-close" @click="checkList = true"></i>
                 </div>
@@ -54,8 +72,8 @@
 </template>
 
 <script>
+import api from '@/api'
 import draggable from 'vuedraggable'
-// import api from '../api/index'
 import { mapMutations, mapState } from 'vuex'
 import TaskComponent from './TaskComponent.vue'
     export default {
@@ -67,34 +85,124 @@ import TaskComponent from './TaskComponent.vue'
         },
         data(){
             return {
-                drawer: false,
                 checkList:true,
                 drag:false,
-                title:'',
+                list:{
+                    title:'',
+                    index:1
+                },
                 tag:'',
             }
         },
         methods: {
-            ...mapMutations(['addList','addTag','checkIndex']),
-            handleAddList(){
-               this.addList(this.title)
-               this.title=''
-               setTimeout(()=>{
-                    document.getElementById('abc').scrollIntoView()
-               },200)
-            },
-            handleAddTag(id){
+            ...mapMutations(['getAll','toggleAddTag']),
+            checkMove: function(e) {
                 let data = {
-                    id:id,
-                    tag:this.tag
+                    id:e.draggedContext.element.id,
+                    index:e.draggedContext.futureIndex
                 }
-                this.addTag(data)
-                this.tag = ''
+                api.indexDirectory(data)
+                .then()
+                .catch(err => {
+                    console.log(err)
+                })
             },
+        
+            moveTag(e){
+                let data = {
+                    id:e.draggedContext.element.id,
+                    index:e.draggedContext.futureIndex,
+                }
+                if(e.draggedContext.element.directory_id == e.to.parentElement.getAttribute('id')){
+                    api.indexTag(data)
+                    .then()
+                    .catch(err => {
+                        console.log(err)
+                    })
+                }else{
+                    Object.assign(data,{directory_id:e.to.parentElement.getAttribute('id')})
+                    api.changeTag(data)
+                    .then()
+                    .catch(err => {
+                        console.log(err)
+                    })
+                }
+               
+            },
+            handleAddList(){
+                if(this.list.title == ''){
+                    return false
+                }else{
+                    this.list.index = this.directories.length+1
+                    api.addDirectory(this.list)
+                    .then(res => {
+                        if(res.status == 200){
+                            this.list.title = ''
+                            this.getAll()
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                    setTimeout(()=>{
+                            document.getElementById('abc').scrollIntoView()
+                    },200)
+                }
+                
+            },
+            updateDirectoty(list){
+                if(list.title == ''){
+                    return false
+                }else{
+                    let data = new URLSearchParams()
+                    data.append('id',list.id)
+                    if(list.title){
+                        data.append('title',list.title)
+                    }
+                    api.editDirectory(data)
+                    .then()
+                    .catch(err => {
+                        console.log(err)
+                    })      
+                }
+               
+            },
+            removeDirectory(id){
+                api.deleteDirectory(id)
+                .then(res => {
+                    console.log(res)
+                    this.getAll()
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+            },
+            handleAddTag(tag){
+                let data = {
+                    directory_id:tag.id,
+                    title:this.tag,
+                    index:tag.cards.length+1
+                }
+                // console.log(tag)
+                if(data.title == ''){
+                    return false
+                }else{
+                    api.addTag(data).then(res => {
+                        // console.log(res)
+                        if(res.status == 200){
+                            this.tag = ''
+                            this.getAll()
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                }
+                
+            },  
             checkIndx(id){
-                this.checkIndex(id)
-            }
-            
+                 this.toggleAddTag(id)
+            },
         },
         computed: {
             dragOptions() {
@@ -106,17 +214,10 @@ import TaskComponent from './TaskComponent.vue'
                   
                 };
             },
-            ...mapState([
-                'list1',
-            ])
+            ...mapState(['directories']),
         },
         mounted(){
-        
-        //    api.getDirectory().then(res =>{
-        //         console.log(res)
-        //    }).catch(err => {
-        //          console.log(err)
-        //    })
+           this.getAll()
         }
     }
 </script>
@@ -219,24 +320,30 @@ import TaskComponent from './TaskComponent.vue'
            padding: 10px 0;
            height: max-content;
            .title{
-                height: 28px;
-                font-size: 18px;
-                font-weight: bold;
-                background-color: transparent;
-                outline: none;
-                border: none;
+                display: flex;
+                justify-content: space-between;
                 width: 90%;
                 margin: 0 auto;
-                display: block;
-                padding-left: 5px;
-                margin-top: 5px;
-                border-radius: 3px;
-                border: 2px solid transparent;
+                align-items: center;
+                input{
+                    height: 28px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    background-color: transparent;
+                    outline: none;
+                    border: none;
+                    width: 90%;
+                    display: block;
+                    padding-left: 5px;
+                    margin-top: 5px;
+                    border-radius: 3px;
+                    border: 2px solid transparent;
+                }
            }
-           .title:hover{
+           .title input:hover{
                 cursor: pointer;
            }
-           .title:focus{
+           .title input:focus{
                 border: 2px solid #3689c3;
                 background-color: white;
                 cursor:text;

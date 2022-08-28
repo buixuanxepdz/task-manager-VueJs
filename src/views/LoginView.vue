@@ -60,7 +60,6 @@ import { mapMutations } from 'vuex';
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         api.login(this.dynamicValidateForm).then(res => {
-                            console.log(res.data)
                             this.updateAccessToken(res.data.access_token);
                             this.updateStatusLogin(true);
                             this.$router.push({name: "home"})
@@ -77,7 +76,10 @@ import { mapMutations } from 'vuex';
                     }
                 });
             },
-        }
+        },
+        mounted() {
+            document.title = 'Đăng nhập hệ thống'
+        },
 }
 </script>
 

@@ -121,7 +121,10 @@ import LoginLayout from '@/layouts/LoginLayout.vue';
                     }
                 });
             },
-        }
+        },
+        mounted() {
+            document.title = 'Đăng kí tài khoản'
+        },
 }
 </script>
 

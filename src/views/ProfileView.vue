@@ -7,7 +7,7 @@
                         <form>
                             <div v-if="avatar || url" class="preview"  title="Cập nhật avatar">
                                 <img v-if="url" :src="url" />
-                                <img :src="`http://vuecourse.zent.edu.vn/storage/${avatar}`" alt="" v-else>
+                                <img :src="`http://vuecourse.zent.edu.vn/storage/users/${avatar}`" alt="" v-else>
                                 <i class="fa-solid fa-xmark" title="Hủy" @click="close"></i>
                             </div>
                             <div v-else class="preview" @click="changeImg" title="Cập nhật avatar">
@@ -47,8 +47,8 @@
                             </el-tab-pane>
                             <el-tab-pane label="Đổi mật khẩu">
                                 <el-form :model="changePass" :rules="rules" ref="changePass" class="demo-dynamic">
-                                    <el-form-item prop="pass">
-                                        <el-input type="password" v-model="changePass.pass" autocomplete="off"  placeholder="Mật khẩu"></el-input>
+                                    <el-form-item prop="password">
+                                        <el-input type="password" v-model="changePass.password" autocomplete="off"  placeholder="Mật khẩu"></el-input>
                                     </el-form-item>
                                     <el-form-item prop="checkPass">
                                         <el-input type="password" v-model="changePass.checkPass" autocomplete="off"  placeholder="Nhập lại mật khẩu"></el-input>
@@ -70,27 +70,32 @@
 
 <script>
 import api from '@/api';
+import { mapMutations } from 'vuex';
 
     export default {
         name:'ProfileView',
         data(){
             var validatePass = (rule, value, callback) => {
                 if (value === '') {
-                callback(new Error('Vui lòng nhập mật khẩu'));
+                    callback(new Error('Vui lòng nhập mật khẩu'));
+                }else if(value.length < 6){
+                    callback(new Error('Mật khẩu phải từ 6 kí tự'));
                 } else {
-                if (this.changePass.checkPass !== '') {
-                    this.$refs.changePass.validateField('checkPass');
-                }
-                callback();
+                    if (this.changePass.checkPass !== '') {
+                        this.$refs.changePass.validateField('checkPass');
+                    }
+                    callback();
                 }
             };
             var validatePass2 = (rule, value, callback) => {
                 if (value === '') {
-                callback(new Error('Vui lòng nhập lại mật khẩu'));
-                } else if (value !== this.changePass.pass) {
-                callback(new Error('Mật khẩu nhập lại chưa khớp'));
+                    callback(new Error('Vui lòng nhập lại mật khẩu'));
+                }else if(value.length < 6){
+                    callback(new Error('Mật khẩu phải từ 6 kí tự'));
+                } else if (value !== this.changePass.password) {
+                    callback(new Error('Mật khẩu nhập lại chưa khớp'));
                 } else {
-                callback();
+                    callback();
                 }
             };
            return {
@@ -103,11 +108,11 @@ import api from '@/api';
                     name:''
                 },
                 changePass:{
-                    pass:'',
+                    password:'',
                     checkPass:''
                 },
                 rules: {
-                    pass: [
+                    password: [
                         { validator: validatePass, trigger: 'blur' }
                     ],
                     checkPass: [
@@ -115,17 +120,30 @@ import api from '@/api';
                     ],
                 },
                 url:'',
-                avatar:''
+                avatar:'',
             };
         },
         methods:{
-             submitForm(formName){
+            ...mapMutations('user', ['handleAvatar']),
+            submitForm(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$message({
-                        message: 'Cập nhật thành công',
-                        type: 'success'
-                        });
+                       let data = new FormData()
+                        data.append('name',this.dynamicValidateForm.name)
+                        data.append('email',this.dynamicValidateForm.email)
+                        api.updateProfile(data)
+                        .then(res => {
+                            if(res.status == 200){
+                                this.$notify({
+                                    title: 'Thành công',
+                                    message: 'Cập nhật thành công',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -135,38 +153,76 @@ import api from '@/api';
             formChangePass(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                       this.$message({
-                        message: 'Cập nhật mật khẩu thành công',
-                        type: 'success'
-                        });
+                        let data = new URLSearchParams()
+                        data.append('password',this.changePass.password)
+                        data.append('password_confirmation',this.changePass.checkPass)
+                        api.updatePassword(data)
+                        .then(res => {
+                            if(res.status == 200){
+                                this.$notify({
+                                    title: 'Thành công',
+                                    message: 'Cập nhật mật khẩu thành công',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
                     } else {
                         return false;
                     }
                 });
             },
             updateAvatar(){
-
+                let data = new FormData()
+                if(this.avatar){
+                    data.append('avatar',this.avatar)
+                }
+                api.updateProfile(data)
+                .then(res => {
+                    if(res.status == 200){
+                        this.$notify({
+                            title: 'Thành công',
+                            message: 'Cập nhật avatar thành công',
+                            type: 'success'
+                        });
+                        this.getAuth()
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                })
             },
             onFileChange(e) {
                 const file = e.target.files[0];
                 this.url = URL.createObjectURL(file);
+                this.avatar = file
             },
             changeImg(){
                 this.$refs.file.click()
             },
             close(){
                 this.url = ''
+                this.avatar = ''
+            },
+            getAuth(){
+                 api.getAuthUser().then(res => {
+                    // console.log(res.data)
+                    this.dynamicValidateForm.name = res.data.name
+                    this.dynamicValidateForm.email = res.data.email
+                    this.avatar = res.data.avatar
+                    this.handleAvatar(res.data.avatar)
+                }).catch(err => {
+                    console.log(err)
+                })
             }
         },
         mounted(){
-           api.getAuthUser().then(res => {
-                console.log(res.data.name)
-                this.dynamicValidateForm.name = res.data.name
-                this.dynamicValidateForm.email = res.data.email
-                this.avatar = res.data.avatar
-            }).catch(err => {
-                console.log(err)
-            })
+           this.getAuth()
+           document.title = 'Thông tin cá nhân'
+        },
+        computed:{
         }
     }
 </script>
@@ -221,7 +277,7 @@ import api from '@/api';
                         background-color: red;
                         border-radius: 50%;
                         z-index: 12;
-                        display: none;
+                        opacity: 0;
                     }
                 }
                 .preview::before{
@@ -233,12 +289,13 @@ import api from '@/api';
                     height: 100%;
                     background-color: #0000004f;
                     z-index: 10;
-                    display: none;
+                    opacity: 0;
                     border-radius: 50%;
                 }
                 .preview:hover::before,.preview:hover i{
-                    display: block ;
+                    opacity: 1;
                     cursor: pointer;
+                    transition: 0.4s;
                 }
                 #inpt{
                     width: 70%;

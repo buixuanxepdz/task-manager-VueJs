@@ -7,7 +7,14 @@
     <router-view/>
   </div>
 </template>
-
+<script>
+export default{
+  mounted() {
+    document.title='Trang chủ'
+  },
+}
+  
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
