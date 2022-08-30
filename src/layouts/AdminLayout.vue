@@ -48,14 +48,13 @@ import { mapMutations, mapState } from 'vuex';
             ...mapMutations('user', ['handleAvatar']),
             clickLogout(){
                 // alert('ok')
-                 api.logout().then(res => {
-                    console.log(res)
+                 api.logout().then(() => {
                     this.updateAccessToken('')
                     this.updateStatusLogin(false);
                     this.$router.push({name: "login"})
 
-                }).catch(err => {
-                    console.log(err)
+                }).catch(() => {
+                    // console.log(err)
                 })
             },
 
@@ -63,8 +62,7 @@ import { mapMutations, mapState } from 'vuex';
         mounted() {
              api.getAuthUser().then(res => {
                     this.handleAvatar(res.data.avatar)
-                }).catch(err => {
-                    console.log(err)
+                }).catch(() => {
                 })
         },
         computed:{

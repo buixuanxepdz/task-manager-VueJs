@@ -29,7 +29,7 @@
                 <i class="el-icon-paperclip" style="font-weight: bold;"></i><h5 style="display:inline-block;margin:0;margin-left: 4px;">{{ element2.files.length }}</h5>
             </span>
             <span v-if="element2.check_lists.length > 0" style="margin-left: 8px;margin-top: 5px;">
-                <i class="el-icon-document-checked" style="font-weight: bold;"></i><h5 style="display:inline-block;margin:0;margin-left: 4px;">{{ element2.check_lists.length }}</h5>
+                <i class="el-icon-document-checked" style="font-weight: bold;"></i><h5 style="display:inline-block;margin:0;margin-left: 4px;">{{ handleCountWork  }}</h5>
             </span>
         </div>
     </li>
@@ -66,6 +66,21 @@ import moment from 'moment';
             }
             return url
         },
+        handleCountWork() {
+                let work1 = 0;
+                let work2 = 0;
+
+                this.element2.check_lists.map((parent) => {
+                    parent.check_list_childs.map((child) => {
+                        if(child.status == 1) {
+                            work1+=1;
+                        }
+                        work2+=1;
+                    })
+                })
+
+                return work1 + '/' + work2;
+            },
     },
     methods: {
         ...mapMutations('task',['handleDrawer','getFiles','getTest']),

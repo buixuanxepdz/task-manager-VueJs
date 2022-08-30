@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid">
-        <div class="container">
+        <div class="container animate__animated animate__zoomInDown">
             <slot name="form"></slot>
         </div>
     </div>

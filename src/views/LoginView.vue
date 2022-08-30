@@ -63,15 +63,14 @@ import { mapMutations } from 'vuex';
                             this.updateAccessToken(res.data.access_token);
                             this.updateStatusLogin(true);
                             this.$router.push({name: "home"})
-                        }).catch(err => {
-                            console.log(err)
+                        }).catch(() => {
                             this.$message({
                             message: 'Sai thông tin đăng nhập',
                             type: 'error'
                         });
                         })
                     } else {
-                        console.log('error submit!!');
+                        // console.log('error submit!!');
                         return false;
                     }
                 });

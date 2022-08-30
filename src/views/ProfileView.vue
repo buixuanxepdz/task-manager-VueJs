@@ -2,7 +2,7 @@
     <div class="container">
         <el-container>
             <el-main>
-                <div class="content">
+                <div class="content animate__animated animate__fadeInDown">
                     <div class="image">
                         <form>
                             <div v-if="avatar || url" class="preview"  title="Cập nhật avatar">

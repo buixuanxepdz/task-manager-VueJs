@@ -114,7 +114,7 @@
             <div class="description">
                 <i class="fa-solid fa-bars"></i>
                 <h3>Mô tả</h3>
-                <el-button v-if="toggleDes == true" @click="toggleDes = false" style="margin-left: 10px;font-weight: bold;" plain>{{ !detail.description ? '+':'Sửa' }}</el-button>
+                <el-button v-if="toggleDes == true" size="small" @click="toggleDes = false" style="margin-left: 10px;font-weight: bold;" plain>{{ !detail.description ? '+':'Sửa' }}</el-button>
                 <span style="margin-left: 20px;font-size: 18px;display: block;font-weight: bold;" v-if="toggleDes == true" @click="toggleDes = false">{{ detail.description }}</span>
                 <div v-else>
                     <textarea placeholder="Thêm mô tả" name="" id="" v-model="detail.description"></textarea>
