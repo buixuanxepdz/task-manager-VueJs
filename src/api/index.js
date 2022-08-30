@@ -177,10 +177,10 @@ export default {
         data: data
         })
     },
-    getListLabel(){
+    getListLabel(data){
         return apiAxios({
         method: 'get',
-        url: '/labels',
+        url: `/labels?q=${data}`,
         })
     },
     updateLabel(data){

@@ -15,11 +15,23 @@ const store = new Vuex.Store({
   mutations: {
       getAll(state){
         api.getDirectory()
-        .then(res => {
-          res.data.data.map((n) => {
-              Object.assign(n,{status:true})
-          })
-          state.directories = res.data.data
+        .then(async(res) => {
+          // res.data.data.map((n) => {
+          //     Object.assign(n,{status:true})
+          // })
+          // state.directories = res.data.data
+          let result = res.data.data;
+          for (const data of result) {
+            Object.assign(data, {status: true});
+            await Promise.all(data.cards.map(async (value) => {
+              await api.getTag(value)
+                .then((res) => {
+                  Object.assign(value, {files: res.data.data.files, check_lists: res.data.data.check_lists});
+                })
+            }))
+          }
+          state.directories = result;
+          // console.log(state.directories)
         })
         .catch(err => {
           console.log(err)

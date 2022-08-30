@@ -4,7 +4,7 @@
             <template #form>
                 <div>
                     <header style="width:100%;margin-bottom: 30px;"><img width="100%" src="../assets/images/login.png" alt=""></header>
-                    <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" class="demo-dynamic">
+                    <el-form :model="dynamicValidateForm" ref="dynamicValidateForm"  @keyup.enter.native="submitForm('dynamicValidateForm')" class="demo-dynamic">
                         <el-form-item
                             prop="email"
                             :rules="[

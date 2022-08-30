@@ -19,20 +19,11 @@
                     :id="element.id"
                 >
                     <div class="title">
-                        <!-- <h3 @click="changeTitle()">Change</h3> -->
-                        <input type="text" v-model="element.title" @blur="updateDirectoty(element)">
-                        <el-dropdown>
-                            <span class="el-dropdown-link">
-                                <i class="el-icon-more"></i>
-                            </span>
-                            <el-dropdown-menu slot="dropdown" style="padding: 0px 5px;;">
-                                <div @click="removeDirectory(element.id)">
-                                    <el-dropdown-item>
-                                        <i class="el-icon-delete" style="text-align: center;margin: 0;color: red;font-weight: bold;"></i>
-                                    </el-dropdown-item>
-                                </div>
-                            </el-dropdown-menu>
-                        </el-dropdown>
+                        <input v-if="toggleEditTitle == element.id" type="text" v-model="editTitle" @blur="toggleEditTitle = ''" @keyup.enter="updateDirectoty(element.id)">
+                        <h4  v-else @click="(toggleEditTitle = element.id),(editTitle = element.title)" :title="element.title">
+                            {{ formatName(element.title) }}
+                        </h4>
+                        <i class="el-icon-delete" @click="removeDirectory(element.id)" style="text-align: center;margin: 0;color: gray;font-weight: bold;"></i>
                     </div>
                     <draggable
                         class="list-group"
@@ -50,7 +41,7 @@
                         <i class="el-icon-plus"></i>Thêm thẻ
                     </div>
                     <div class="addTag addTagActive" v-else>
-                        <textarea name="" id="" rows="3" autofocus v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
+                        <textarea name="" id="" rows="3" autofocus @keyup.enter="handleAddTag(element)" v-model="tag" placeholder="Nhập tiêu đề cho thẻ..." ></textarea>
                         <div class="addHandle"> 
                             <button @click="handleAddTag(element)">Thêm thẻ</button><i class="el-icon-close" @click="element.status  =! element.status"></i>
                         </div>
@@ -85,6 +76,8 @@ import TaskComponent from './TaskComponent.vue'
         },
         data(){
             return {
+                toggleEditTitle:'',
+                editTitle:'',
                 checkList:true,
                 drag:false,
                 list:{
@@ -96,6 +89,14 @@ import TaskComponent from './TaskComponent.vue'
         },
         methods: {
             ...mapMutations(['getAll','toggleAddTag']),
+            formatName(name) {
+                if (name.length > 10) {
+                    return name.slice(0, 10) + "...";
+                }
+                else {
+                    return name;
+                }
+            },
             checkMove: function(e) {
                 let data = {
                     id:e.draggedContext.element.id,
@@ -150,17 +151,21 @@ import TaskComponent from './TaskComponent.vue'
                 }
                 
             },
-            updateDirectoty(list){
-                if(list.title == ''){
+            updateDirectoty(id){
+                if(this.editTitle == ''){
+                    this.toggleEditTitle = ''
                     return false
                 }else{
                     let data = new URLSearchParams()
-                    data.append('id',list.id)
-                    if(list.title){
-                        data.append('title',list.title)
+                    data.append('id',id)
+                    if(this.editTitle){
+                        data.append('title',this.editTitle)
                     }
                     api.editDirectory(data)
-                    .then()
+                    .then(()=>{
+                        this.toggleEditTitle = ''
+                        this.getAll()
+                    })
                     .catch(err => {
                         console.log(err)
                     })      
@@ -168,14 +173,29 @@ import TaskComponent from './TaskComponent.vue'
                
             },
             removeDirectory(id){
-                api.deleteDirectory(id)
-                .then(res => {
-                    console.log(res)
-                    this.getAll()
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+                this.$confirm('Bạn muốn xóa danh sách ?', 'Cảnh báo', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Hủy',
+                type: 'warning',
+                center: true
+                }).then(() => {
+                    api.deleteDirectory(id)
+                    .then(() => {
+                            this.$message({
+                            type: 'success',
+                            message: 'Xóa thành công'
+                        });
+                        this.getAll()
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: 'Hủy xóa'
+                    });
+                });
             },
             handleAddTag(tag){
                 let data = {
@@ -325,28 +345,30 @@ import TaskComponent from './TaskComponent.vue'
                 width: 90%;
                 margin: 0 auto;
                 align-items: center;
+                h4{
+                    color: black;
+                    font-size: 18px;
+                    margin: 7.4px 5px;
+                    display: block;
+                    width: 90%;
+                }
                 input{
                     height: 28px;
                     font-size: 18px;
                     font-weight: bold;
-                    background-color: transparent;
-                    outline: none;
+                    border: 2px solid #3689c3;
+                    background-color: white;
+                    outline: 2px solid #3689c3;
                     border: none;
                     width: 90%;
                     display: block;
                     padding-left: 5px;
-                    margin-top: 5px;
+                    margin: 7.4px 0;
                     border-radius: 3px;
-                    border: 2px solid transparent;
                 }
            }
            .title input:hover{
                 cursor: pointer;
-           }
-           .title input:focus{
-                border: 2px solid #3689c3;
-                background-color: white;
-                cursor:text;
            }
              .addTag{
                 width: 90%;

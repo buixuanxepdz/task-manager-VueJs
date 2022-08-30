@@ -46,10 +46,9 @@ router.beforeEach((to, from, next) => {
   if (to.name != 'login' && !store.state.auth.isLogin) {
     next({ name:['login','register'] })
   } 
-  else if (to.name == 'login' && store.state.auth.isLogin) {
+  else if ((to.name == 'register' || to.name == 'login') && store.state.auth.isLogin) {
     next({ name: 'home' })
   } 
-  
   else {
     next()
   }

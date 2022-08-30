@@ -4,24 +4,34 @@
         class="list-group-item-child"
         @click="handleDetail(element2)"
     >
-        <!-- <div class="image">
-            {{ hihi.title }}
-        </div> -->
+        <div class="image" v-if="handleCheckFile">
+            <img :src="`http://vuecourse.zent.edu.vn/storage/${handleCheckFile}`" alt="">
+        </div>
         <div  class="contentLabel">
             <span style="display: inline-block;margin-right: 5px;" v-for="(label,index) in element2.labels" :key="index">
                 <span class="label" :style="`background-color:${label.color}`">{{ label.name }}</span>
             </span>
         </div>
         {{ element2.title }}
-        <span v-if="element2.deadline">
-            <div class="deadline" v-if="element2.status == 1" style="background-color: green;font-weight:bold;font-size:13px;width: max-content;padding: 4px;border-radius: 5px;color:white;margin-top: 5px;">
-                <i class="el-icon-time" style="margin-right: 3px;"></i>{{ formatDate(element2.deadline) }}
-            </div>
-            <div class="deadline" v-else style="background-color: red;font-weight:bold;font-size:13px;width: max-content;padding: 4px;border-radius: 5px;color:white;margin-top: 5px;">
-                <i class="el-icon-time" style="margin-right: 3px;"></i>{{ formatDate(element2.deadline) }}
-            </div>
-        </span>
-        
+        <div class="bottom">
+            <span v-if="element2.deadline">
+                <div class="deadline" v-if="element2.status == 1" style="display:inline-block;background-color: green;font-weight:bold;font-size:13px;width: max-content;padding: 4px;border-radius: 5px;color:white;margin-top: 5px;">
+                    <i class="el-icon-time" style="margin-right: 3px;"></i>{{ formatDate(element2.deadline) }}
+                </div>
+                <div class="deadline" v-if="element2.deadline <= formatDatecheck(new Date()) && element2.status == 0" style="display:inline-block;background-color: red;font-weight:bold;font-size:13px;width: max-content;padding: 4px;border-radius: 5px;color:white;margin-top: 5px;">
+                    <i class="el-icon-time" style="margin-right: 3px;"></i>{{ formatDate(element2.deadline) }}
+                </div>
+                <div class="deadline" v-else-if="element2.deadline <= formatDatecheck(new Date().setDate(new Date().getDate() + 1)) && element2.status == 0" style="display:inline-block;background-color: orange;font-weight:bold;font-size:13px;width: max-content;padding: 4px;border-radius: 5px;color:white;margin-top: 5px;">
+                    <i class="el-icon-time" style="margin-right: 3px;"></i>{{ formatDate(element2.deadline) }}
+                </div>
+            </span>
+            <span v-if="element2.files.length > 0" style="margin-left: 8px;margin-top: 5px;">
+                <i class="el-icon-paperclip" style="font-weight: bold;"></i><h5 style="display:inline-block;margin:0;margin-left: 4px;">{{ element2.files.length }}</h5>
+            </span>
+            <span v-if="element2.check_lists.length > 0" style="margin-left: 8px;margin-top: 5px;">
+                <i class="el-icon-document-checked" style="font-weight: bold;"></i><h5 style="display:inline-block;margin:0;margin-left: 4px;">{{ element2.check_lists.length }}</h5>
+            </span>
+        </div>
     </li>
     <TaskDetail :element2="element2" />
 </div>
@@ -39,14 +49,32 @@ import moment from 'moment';
     props: ["element2"],
     data() {
         return {
-            hihi:{}
+          
         };
+    },
+    computed:{
+        ...mapState('task',['drawer','detail','files']),
+        handleCheckFile(){
+            let url = ''
+            for(let i = 0 ; i < this.element2.files.length ; i++) {
+                if(this.element2.files[i].name.includes('.jpg') || this.element2.files[i].name.includes('.png') || this.element2.files[i].name.includes('.jpeg')) {
+                    url = this.element2.files[i].path;
+                    break;
+                }else{
+                    url = '';
+                }
+            }
+            return url
+        },
     },
     methods: {
         ...mapMutations('task',['handleDrawer','getFiles','getTest']),
         ...mapMutations(['getAll']),
         formatDate(date){
             return  moment(date).format('Do M')
+        },
+        formatDatecheck(date){
+            return  moment(date).format("YYYY-MM-DD HH:mm:ss")
         },
         handleDetail(element){
             api.getTag(element).then(res => {
@@ -57,25 +85,15 @@ import moment from 'moment';
             })
             document.title = `Chi tiết thẻ ${element.title}`
         },
-        getCards(){
-            api.getTag(this.element2).then(res => {
-                if(res.status ==200){
-                   this.hihi = res.data.data
-                   this.getAll()
-                }
-                })
-            .catch(err => {
-                console.log(err)
-            })
-        }
     },
     components: { TaskDetail },
-    computed: {
-        ...mapState('task',['drawer','detail','files','test']),
-    },
+    
     mounted() {
-        this.getCards()
-        this.getAll()
+        // this.getAll()
+        // this.handleCheckFile()
+    },
+    created() {
+        this.handleCheckFile 
     },
 }
 </script>
@@ -107,9 +125,11 @@ import moment from 'moment';
         .image{
             width: 100%;
             height: 150px;
+            margin-bottom: 10px;
             img{
                 width: 100%;
                 height: 100%;
+                border-radius: 7px;
             }
         }
         .deadline{

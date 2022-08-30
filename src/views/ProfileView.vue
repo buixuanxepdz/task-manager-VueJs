@@ -31,7 +31,7 @@
                                         { type: 'email', message: 'Vui lòng nhập địa chỉ email chính xác', trigger: ['blur', 'change'] }
                                         ]"
                                     >
-                                        <el-input v-model="dynamicValidateForm.email" placeholder="Email"></el-input>
+                                        <el-input :disabled="true" v-model="dynamicValidateForm.email" placeholder="Email"></el-input>
                                     </el-form-item>
                                     <el-form-item prop="name"  :rules="[
                                         { required: true, message: 'Vui lòng nhập họ tên', trigger: 'blur' },
@@ -130,7 +130,7 @@ import { mapMutations } from 'vuex';
                     if (valid) {
                        let data = new FormData()
                         data.append('name',this.dynamicValidateForm.name)
-                        data.append('email',this.dynamicValidateForm.email)
+                        // data.append('email',this.dynamicValidateForm.email)
                         api.updateProfile(data)
                         .then(res => {
                             if(res.status == 200){
