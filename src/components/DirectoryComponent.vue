@@ -140,14 +140,14 @@ import TaskComponent from './TaskComponent.vue'
                         if(res.status == 200){
                             this.list.title = ''
                             this.getAll()
+                            setTimeout(()=>{
+                            document.getElementById('abc').scrollIntoView()
+                            },200)
                         }
                     })
                     .catch(err => {
                         console.log(err)
                     })
-                    setTimeout(()=>{
-                            document.getElementById('abc').scrollIntoView()
-                    },200)
                 }
                 
             },

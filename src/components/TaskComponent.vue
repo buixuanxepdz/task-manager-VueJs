@@ -57,7 +57,7 @@ import moment from 'moment';
         handleCheckFile(){
             let url = ''
             for(let i = 0 ; i < this.element2.files.length ; i++) {
-                if(this.element2.files[i].name.includes('.jpg') || this.element2.files[i].name.includes('.png') || this.element2.files[i].name.includes('.jpeg')) {
+                if(this.element2.files[i].path.includes('.jpg') || this.element2.files[i].path.includes('.png') || this.element2.files[i].path.includes('.jpeg')) {
                     url = this.element2.files[i].path;
                     break;
                 }else{

@@ -136,5 +136,6 @@ import { mapMutations, mapState } from 'vuex';
         background-image: url('../assets/images/bg-home.png');
         background-repeat: no-repeat;
         background-size: cover;
+        background-position: center;
     }
 </style>

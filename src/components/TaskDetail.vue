@@ -143,11 +143,11 @@
                     </div>
                 </div>
             </div>
-            <div class="attach" >
+            <div class="attach" v-show="detail.files != ''">
                 <i class="el-icon-paperclip" style="margin-right: 10px;font-size:30px;font-weight: bold;"></i><h3>Đính kèm</h3>
                 <div class="attach">
                     <div class="contentAttach" v-for="(file,index) in detail.files" :key="index">
-                        <img v-if="file.name.includes('.jpg')||file.name.includes('.png')|| file.name.includes('.jpeg')" :src="`http://vuecourse.zent.edu.vn/storage/${file.path}`" alt="">
+                        <img v-if="file.path.includes('.jpg')||file.path.includes('.png')|| file.path.includes('.jpeg')" :src="`http://vuecourse.zent.edu.vn/storage/${file.path}`" alt="">
                         <img v-else src="../assets/images/file.png" alt="">
                         <div class="bao">
                             <div v-if="toggleName == file.id">
@@ -162,7 +162,7 @@
                                     icon="el-icon-info"
                                     @confirm="removeFile(file.id)"
                                     icon-color="red"
-                                    title="Bạn chắc chắn muốn file này ?"
+                                    title="Bạn chắc chắn muốn tệp này ?"
                                     placement="right"
                                 >
                                     <el-button style="margin-left: 10px;" type="danger"
@@ -558,13 +558,18 @@ import CheckListComponent from './CheckListComponent.vue';
             this.$refs.file.click();
         },
         handleFile(e) {
-            this.attach.file = e.target.files[0];
-            this.attach.fileName = e.target.files[0].name;
-            let data = new FormData();
-            data.append("id", this.detail.id);
-            data.append("file", this.attach.file);
-            data.append("name", this.attach.fileName);
-            api.uploadFileInTag(data)
+            if(e.target.files[0].name.includes('.jpg') || e.target.files[0].name.includes('.jpeg') || e.target.files[0].name.includes('.png')
+            || e.target.files[0].name.includes('.txt') || e.target.files[0].name.includes('.pdf') || e.target.files[0].name.includes('.doc')
+            || e.target.files[0].name.includes('.docx') || e.target.files[0].name.includes('.xlsx') || e.target.files[0].name.includes('.xls')
+            || e.target.files[0].name.includes('.mp4')){
+            
+                this.attach.file = e.target.files[0];
+                this.attach.fileName = e.target.files[0].name;
+                let data = new FormData();
+                data.append("id", this.detail.id);
+                data.append("file", this.attach.file);
+                data.append("name", this.attach.fileName);
+                api.uploadFileInTag(data)
                 .then(res => {
                 if (res.status == 200) {
                     api.getTag(this.detail).then(res => {
@@ -577,11 +582,14 @@ import CheckListComponent from './CheckListComponent.vue';
                     }
                 })
                 .catch(() => {
-                 this.$notify.error({
-                    title: "Lỗi",
-                    message: "File phải đúng định dạng: jpg, jpeg, png, txt, pdf, doc, docx, xlsx, xls, video/mp4 ."
                 });
-            });
+            }else{
+                 this.$notify.error({
+                        title: "Lỗi",
+                        message: "File phải đúng định dạng: jpg, jpeg, png, txt, pdf, doc, docx, xlsx, xls, video/mp4 ."
+                    });
+                return false
+            }
         },
         formatName(name) {
             if (name.length > 20) {
@@ -779,9 +787,9 @@ import CheckListComponent from './CheckListComponent.vue';
                 display: inline-block;
             }
             .contentAttach{
+                margin-top: 10px;
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 15px;
                 img{
                     width: 140px;
                     height: 100px;
@@ -841,6 +849,7 @@ import CheckListComponent from './CheckListComponent.vue';
             }
         }
         .todo{
+            margin-top: 18px;
         }
     }
 </style>

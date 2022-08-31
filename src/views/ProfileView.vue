@@ -141,11 +141,8 @@ import { mapMutations } from 'vuex';
                                 });
                             }
                         })
-                        .catch(err => {
-                            console.log(err)
-                        })
+                        .catch()
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
@@ -166,9 +163,7 @@ import { mapMutations } from 'vuex';
                                 });
                             }
                         })
-                        .catch(err => {
-                            console.log(err)
-                        })
+                        .catch()
                     } else {
                         return false;
                     }
@@ -190,9 +185,7 @@ import { mapMutations } from 'vuex';
                         this.getAuth()
                     }
                 })
-                .catch(err => {
-                    console.log(err)
-                })
+                .catch()
             },
             onFileChange(e) {
                 const file = e.target.files[0];
@@ -213,9 +206,7 @@ import { mapMutations } from 'vuex';
                     this.dynamicValidateForm.email = res.data.email
                     this.avatar = res.data.avatar
                     this.handleAvatar(res.data.avatar)
-                }).catch(err => {
-                    console.log(err)
-                })
+                }).catch()
             }
         },
         mounted(){
@@ -232,6 +223,7 @@ import { mapMutations } from 'vuex';
         background-image: url(../assets/images/bg3.png);
         background-size: cover;
         background-repeat: no-repeat;
+        background-position: center;
         width: 100%;
         height: 100%;
         .content{
